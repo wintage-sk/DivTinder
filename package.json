@@ -1,0 +1,14 @@
+{
+  "name": "devtinder",
+  "version": "1.0.0",
+  "description": "mern stack project",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "satheesh",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
