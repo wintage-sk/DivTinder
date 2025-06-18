@@ -1,2 +1,0 @@
-# DivTinder
-Mern Stack project
