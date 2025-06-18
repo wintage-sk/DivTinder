@@ -1,15 +1,22 @@
 const express = require("express")
 const app= express()
-app.get("/user",(req,res)=>{
-    res.send({name:"Satheesh",city:"Coimbatore"})
+
+const {adminAuth,userAuth}=require("./middlewares/auth")
+app.use("/admin",adminAuth)
+app.get("/user",userAuth,(req,res)=>{
+    
+    res.send(" get user data ")
 })
-app.post("/user",(req,res)=>{
-    res.send("user added successfully")
+app.get("/user/login",(req,res)=>{
+    
+    res.send("user logged in successffully")
 })
-app.delete("/user",(req,res)=>{
-    res.send("user deleted successfully")
+app.get("/admin/getAllData",(req,res)=>{
+    
+    res.send("user data fetched successffully")
 })
-app.put("/user",(req,res)=>{
-    res.send("user updated successfully")
+app.get("/admin/deleteUser",(req,res)=>{
+    res.send("User 1 deleted successffully")
 })
+
 app.listen(3000)
