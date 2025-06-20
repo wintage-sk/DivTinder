@@ -1,22 +1,38 @@
 const express = require("express")
+const {connectDb}=require("./config/database")
+const {User}=require("./model/user")
 const app= express()
 
-const {adminAuth,userAuth}=require("./middlewares/auth")
-app.use("/admin",adminAuth)
-app.get("/user",userAuth,(req,res)=>{
+app.use(express.json())
+app.get("/getUser",async (req,res)=>{
+try{
+    const userData= await User.find()
+    res.send(userData)
+}
+catch(err){
+    res.status(500).send(err.message )
     
-    res.send(" get user data ")
+}
 })
-app.get("/user/login",(req,res)=>{
-    
-    res.send("user logged in successffully")
-})
-app.get("/admin/getAllData",(req,res)=>{
-    
-    res.send("user data fetched successffully")
-})
-app.get("/admin/deleteUser",(req,res)=>{
-    res.send("User 1 deleted successffully")
+app.post("/signup",async (req,res)=>{
+
+const user= new User(req.body);
+  try{
+await user.save()
+res.send("User added successfully")}
+catch(err){
+    res.status(500).send("Error Message"+ err.message)
+}
 })
 
-app.listen(3000)
+connectDb().
+then(()=>{
+    console.log("Databse connected established...");
+    app.listen(3000,()=>{
+        console.log("Server running successfully");
+    })
+}).
+catch((err)=>{
+    console.log("failed to  connect database...");
+})
+
