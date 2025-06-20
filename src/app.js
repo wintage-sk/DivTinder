@@ -24,6 +24,34 @@ catch(err){
     res.status(500).send("Error Message"+ err.message)
 }
 })
+app.delete("/user",async (req,res)=>{
+    try{
+const userId=req.body.userId
+console.log(req.body)
+const user= await User.findByIdAndDelete(userId)
+if(!userId){
+    res.send("User Id not found")
+}
+else{
+    res.send("user deleted successfully")
+}}
+catch(err){
+    res.status(400).send("something went wrong")
+}
+})
+app.patch("/user",async (req,res)=>{
+    const userId=req.body.userId
+const data=req.body
+    try{
+
+const user=await User.findByIdAndUpdate(userId,data,{runValidators:true})
+res.send("User Updated")
+    }
+    catch(err){
+
+        res.status(400).send("something went wrong"+err.message)
+    }
+})
 
 connectDb().
 then(()=>{
