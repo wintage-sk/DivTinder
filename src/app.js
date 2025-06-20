@@ -39,11 +39,17 @@ catch(err){
     res.status(400).send("something went wrong")
 }
 })
-app.patch("/user",async (req,res)=>{
-    const userId=req.body.userId
+app.patch("/user/:userId",async (req,res)=>{
+    const userId=req.params?.userId
 const data=req.body
-    try{
+console.log(data,"")
 
+    try{
+        const allowUpdate=["age","gender","password","skills","photosUrl"]
+const isallowedUpdate=Object.keys(data).every((k)=> allowUpdate.includes(k))
+if(!isallowedUpdate){
+    throw new Error("Update failed")
+}
 const user=await User.findByIdAndUpdate(userId,data,{runValidators:true})
 res.send("User Updated")
     }

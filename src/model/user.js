@@ -1,4 +1,5 @@
 const mongoose=require("mongoose")
+const validator= require("validator")
 const {Schema}=mongoose
 
 const userSchema=new  Schema({
@@ -10,6 +11,14 @@ const userSchema=new  Schema({
     lastName:{
         type:String,
     },
+    photoUrl:{
+ type:String,
+  validate(value){
+    if (!validator.isURL(value)) {
+        throw new Error("Url is not valid", value)
+    }
+ }
+    },
     
     emailId:{
         type:String,
@@ -17,10 +26,22 @@ const userSchema=new  Schema({
         lowercase:true,
         trim:true,
         unique:true,
+        validate(value){
+           if(!validator.isEmail(value)){
+            throw new Error ("Email id is not valid", value)
+           }
+        }
+            
+        
     },
     password:{
         type:String,
-        required:true
+        required:true,
+        validate(value){
+            if(!validator.isStrongPassword(value)){
+            throw new Error("Enter a strong password", value)
+            }
+        }
 
     },
     age:{type:Number,
@@ -35,11 +56,6 @@ const userSchema=new  Schema({
     },
     skills:{
         type:[String],
-       validate: {validator(value){
-        return Array.isArray(value)&&value.length===2
-
-       },
-    message:"only 2 strings allowed"}
     }
 },{timestamps:true})
 
