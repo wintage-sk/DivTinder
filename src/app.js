@@ -2,7 +2,8 @@ const express = require("express")
 const {connectDb}=require("./config/database")
 const {User}=require("./model/user")
 const app= express()
-
+const {validateSignUpData}=require("./utils/validation")
+const bcrypt=require("bcrypt")
 app.use(express.json())
 app.get("/getUser",async (req,res)=>{
 try{
@@ -13,16 +14,42 @@ catch(err){
     res.status(500).send(err.message )
     
 }
-})
+}
+)
 app.post("/signup",async (req,res)=>{
 
-const user= new User(req.body);
   try{
+    validateSignUpData(req)
+    const {firstName,lastName,emailId,password}=req.body
+    const passwordHash=await bcrypt.hash(password,10)
+    console.log(passwordHash,"passowrd");
+    const user= new User({firstName,lastName,password:passwordHash,emailId});
 await user.save()
 res.send("User added successfully")}
 catch(err){
     res.status(500).send("Error Message"+ err.message)
 }
+})
+app.post("/login",async (req,res)=>{
+    try{
+        const {password,emailId}=req.body
+        const user= await User.findOne({emailId:emailId})
+        if(!user){
+            res.send("Invalid Credintials")
+        }
+        const isPasswordVallid=await bcrypt.compare(password,user.password)
+        if(isPasswordVallid){
+            res.send("user loggedin Successfully")
+        }
+        else {
+            res.send("Ivalid credintials")
+        }
+
+    }
+    catch(err){
+        res.status(400).send("Error",err.message)
+        
+    }
 })
 app.delete("/user",async (req,res)=>{
     try{
