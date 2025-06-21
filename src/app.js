@@ -4,7 +4,12 @@ const {User}=require("./model/user")
 const app= express()
 const {validateSignUpData}=require("./utils/validation")
 const bcrypt=require("bcrypt")
+const cookieParser=require("cookie-parser")
+const jwt=require("jsonwebtoken")
+const {userAuth}=require("./middlewares/auth")
 app.use(express.json())
+app.use(cookieParser())
+
 app.get("/getUser",async (req,res)=>{
 try{
     const userData= await User.find()
@@ -22,7 +27,6 @@ app.post("/signup",async (req,res)=>{
     validateSignUpData(req)
     const {firstName,lastName,emailId,password}=req.body
     const passwordHash=await bcrypt.hash(password,10)
-    console.log(passwordHash,"passowrd");
     const user= new User({firstName,lastName,password:passwordHash,emailId});
 await user.save()
 res.send("User added successfully")}
@@ -39,6 +43,8 @@ app.post("/login",async (req,res)=>{
         }
         const isPasswordVallid=await bcrypt.compare(password,user.password)
         if(isPasswordVallid){
+            const token = jwt.sign({_id:user._id},"DivTinderSatheesh@2",{expiresIn:"7d"})
+            res.cookie("token",token,{expires:new Date(Date.now() + 8*360000)})
             res.send("user loggedin Successfully")
         }
         else {
@@ -51,10 +57,23 @@ app.post("/login",async (req,res)=>{
         
     }
 })
+app.get("/profile",userAuth,async (req,res)=>{
+  try{
+  const user=req.user
+  res.send(user)
+}
+  catch(err){
+    res.status(400).send("Error",err.message)
+  }
+})
+app.post("/sendConnectionRequest",userAuth,(req,res)=>{
+    const user=req.user
+    res.send(user.firstName + " send request to connect")
+})
+
 app.delete("/user",async (req,res)=>{
     try{
 const userId=req.body.userId
-console.log(req.body)
 const user= await User.findByIdAndDelete(userId)
 if(!userId){
     res.send("User Id not found")
@@ -69,7 +88,6 @@ catch(err){
 app.patch("/user/:userId",async (req,res)=>{
     const userId=req.params?.userId
 const data=req.body
-console.log(data,"")
 
     try{
         const allowUpdate=["age","gender","password","skills","photosUrl"]

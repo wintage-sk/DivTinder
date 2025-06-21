@@ -2,7 +2,6 @@ const validator=require("validator")
 const validateSignUpData=(req)=>{
 
     const {firstName,lastName, password,emailId}=req.body
-    console.log(req.body,"sss")
 if(!firstName||!lastName){
     throw new Error ("Name is not valid")
 }
