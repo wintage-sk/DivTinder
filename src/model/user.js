@@ -1,5 +1,7 @@
 const mongoose=require("mongoose")
 const validator= require("validator")
+const bcrypt=require("bcrypt")
+const jwt=require("jsonwebtoken")
 const {Schema}=mongoose
 
 const userSchema=new  Schema({
@@ -46,6 +48,8 @@ const userSchema=new  Schema({
     },
     age:{type:Number,
     min:18},
+    about:{type:String,
+    default:"Default update about me"},
     gender:{
         type:String,
         validate(value){
@@ -58,6 +62,18 @@ const userSchema=new  Schema({
         type:[String],
     }
 },{timestamps:true})
+userSchema.methods.getJWT= async function(){
+    const user=this
+     const token = await jwt.sign({_id:user._id},"DivTinderSatheesh@2",{expiresIn:"7d"})
+     return token;
+}
+
+userSchema.methods.validatePassword= async function(passwodUserInput){
+    const user = this
+    const passwordHash=user.password
+    const isPasswordVallid=await bcrypt.compare(passwodUserInput,passwordHash)
+return isPasswordVallid;
+}
 
 const User=mongoose.model("user",userSchema)
 module.exports={User}
